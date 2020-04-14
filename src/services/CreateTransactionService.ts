@@ -16,13 +16,14 @@ class CreateTransactionService {
 
   public execute({title, value, type}: TransactionDto): Transaction {
 
+    const transaction = this.transactionsRepository.create({title, value, type});
     const balance = this.transactionsRepository.getBalance();
 
-    if (type === 'outcome' && value > balance.total) {
+    if ((type === 'outcome') && (value > balance.total)) {
       throw Error('Forbidden Transaction.');
     }
 
-    return this.transactionsRepository.create({title, value, type});
+    return transaction;
   }
 }
 

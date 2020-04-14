@@ -14,9 +14,11 @@ interface TransactionDto {
 
 class TransactionsRepository {
   private readonly transactions: Transaction[];
+  private balance: {};
 
   constructor() {
     this.transactions = [];
+    this.balance = {};
   }
 
   public all(): Transaction[] {
@@ -25,22 +27,19 @@ class TransactionsRepository {
 
   public getBalance(): BalanceDto {
 
-    const getIncome = (sum: number, transaction: TransactionDto) => {
-      return (transaction.type === 'income') ? sum + transaction.value : sum;
-    };
-
-    const getOutcome = (sum: number, transaction: TransactionDto) => {
-      return (transaction.type === 'outcome') ? sum + transaction.value : sum;
+    const operation = (income: number, transaction: TransactionDto) => {
+      return income + transaction.value;
     };
 
     const getTotal = (income: number, outcome: number): number => {
       return income - outcome;
     };
 
-    const income = this.transactions.reduce(getIncome, 0);
-    const outcome = this.transactions.reduce(getOutcome, 0);
+    const income = this.transactions.filter(t => t.type === 'income').reduce(operation, 0);
+    const outcome = this.transactions.filter(t => t.type === 'outcome').reduce(operation, 0);
     const total = getTotal(income, outcome);
 
+    this.balance = {income, outcome, total};
     return {income, outcome, total};
   }
 
